@@ -3,7 +3,7 @@
 **A from-scratch implementation of post-quantum secure communication protocols**
 
 ## ⚠️ Project Status
-Experimental - Under active development. Not yet suitable for production use.
+Experimental - Under active development. Not yet suitable for production use. (or any use for that matter)
 
 ## 🚀 Features
 - **Pure-Rust cryptographic primitives**
