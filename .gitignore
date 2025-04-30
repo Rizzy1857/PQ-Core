@@ -1,0 +1,13 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# VS Code
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# System
+.DS_Store
+Thumbs.db

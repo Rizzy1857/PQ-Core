@@ -1,0 +1,10 @@
+[package]
+name = "pq-core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rand = "0.8"          # Cryptographically secure RNG
+sha3 = "0.10"         # Keccak for hashing
+zeroize = "1.5"       # Secure memory zeroing
+rayon = "1.5"         # Parallel processing
