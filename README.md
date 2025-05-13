@@ -1,6 +1,6 @@
 # PQ-Core 🔒 [![Rust](https://img.shields.io/badge/Rust-1.70+-blue.svg)](https://www.rust-lang.org/)
 
-**A from-scratch implementation of post-quantum secure communication protocols**
+**An implementation of post-quantum secure communication protocols**
 
 ## ⚠️ Project Status
 
