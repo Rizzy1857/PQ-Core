@@ -12,3 +12,11 @@ mod tests {
         assert_eq!(result, 4);
     }
 }
+// src/lib.rs
+pub mod kem;
+pub mod math;
+pub mod sig;
+pub mod protocol;  // This contains PQSession
+
+// Re-export important types at crate root
+pub use protocol::PQSession;

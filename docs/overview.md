@@ -57,7 +57,7 @@ We're not here to tweak the status quo. We're here to burn it down and rebuild i
 
 ## How Does PQ-Core Work?
 
-At a high level, PQ-Core performs the following sequence between two peers—**Alice** and **Bob** (Sorry if these are *your* names):
+At a high level, PQ-Core performs the following sequence between two peers—**Alice** and **Bob** (Sorry if these are your names):
 
 1. **Key Generation**
    - Both Alice and Bob generate their own public-private lattice key pairs.
@@ -97,7 +97,7 @@ At a high level, PQ-Core performs the following sequence between two peers—**A
 - ❌ A toy implementation just meant for education.
 - ❌ A centralized or cloud-dependent toolkit.
 
-PQ-Core is bare-bones in the best way. If you're looking for batteries-included, wait until the app integration phase. This repo is the forge, not the storefront.
+PQ-Core is bare-bones in the best way. If you're looking for batteries-included, wait until the app integration phase. This repo is the blacksmith’s forge, not the storefront.
 
 ---
 
@@ -123,3 +123,4 @@ PQ-Core is our answer to a world that's already watching, already listening, and
 
 Welcome to the future of cryptographic communication.  
 Welcome to **PQ-Core**.
+
