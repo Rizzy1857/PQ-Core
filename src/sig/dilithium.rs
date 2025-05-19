@@ -1,81 +1,73 @@
+//! Dilithium signature scheme (prototype).
+//! This module provides a basic structure for Dilithium-style lattice signatures.
+
+use rand::rngs::OsRng;
+use rand::RngCore;
+
+#[derive(Debug, Clone)]
 pub struct Dilithium {
-    k: usize,  // Number of LWE samples
-    l: usize,  // Secret vector dimension
+    k: usize,
+    l: usize,
     gamma1: i32,
     gamma2: i32,
 }
 
 impl Dilithium {
+    /// Create a new Dilithium instance with given parameters.
     pub fn new(k: usize, l: usize, gamma1: i32, gamma2: i32) -> Self {
-        Dilithium { k, l, gamma1, gamma2 }
+        Self { k, l, gamma1, gamma2 }
     }
 
+    /// Sign a message with a secret key. Returns a serialized signature.
     pub fn sign(&self, msg: &[u8], sk: &[u8]) -> Vec<u8> {
         loop {
-            // 1. Expand secret key into matrices
-            let (s1, s2) = self.expand_sk(sk);
-
-            // 2. Sample random y with small coefficients
+            let (s1, _s2) = self.expand_sk(sk);
             let mut y = vec![0i32; self.l];
             self.sample_uniform(&mut y);
-
-            // 3. Compute w = A*y (placeholder)
-            let mut w = vec![0i32; self.k];
-            // TODO: Implement matrix-vector multiplication with public matrix A
-
-            // 4. Cryptographic hash of message and w
+            let w = vec![0i32; self.k];
             let c = self.hash(msg, &w);
-
-            // 5. Compute z = y + c*s1
             let z = self.poly_add(&y, &self.poly_mul(&c, &s1));
-
-            // 6. Rejection sampling
             if self.check_norm(&z, self.gamma1 - self.gamma2) {
                 return self.serialize_sig(&z, &c);
             }
-            // else: try again
         }
     }
 
-    fn expand_sk(&self, sk: &[u8]) -> (Vec<i32>, Vec<i32>) {
-        // Placeholder for secret key expansion
-        let s1 = vec![0i32; self.l];
-        let s2 = vec![0i32; self.l];
-        (s1, s2)
+    /// Expand a secret key into two vectors (placeholder).
+    fn expand_sk(&self, _sk: &[u8]) -> (Vec<i32>, Vec<i32>) {
+        (vec![0i32; self.l], vec![0i32; self.l])
     }
 
+    /// Sample a vector uniformly in [-gamma1, gamma1).
     fn sample_uniform(&self, y: &mut [i32]) {
-        // Placeholder for uniform sampling in [-gamma1, gamma1)
-        use rand::Rng;
-        let mut rng = rand::thread_rng();
+        let mut rng = OsRng;
         for x in y.iter_mut() {
-            *x = rng.gen_range(-self.gamma1..self.gamma1);
+            *x = (rng.next_u32() as i32 % (2 * self.gamma1)) - self.gamma1;
         }
     }
 
-    fn hash(&self, msg: &[u8], w: &[i32]) -> Vec<i32> {
-        // Placeholder for cryptographic hash
-        // TODO: Use a real hash function and map output to polynomial coefficients
+    /// Placeholder for cryptographic hash to polynomial coefficients.
+    fn hash(&self, _msg: &[u8], _w: &[i32]) -> Vec<i32> {
         vec![0; self.l]
     }
 
+    /// Add two polynomials modulo gamma1.
     fn poly_add(&self, a: &[i32], b: &[i32]) -> Vec<i32> {
         a.iter().zip(b).map(|(x, y)| (x + y) % self.gamma1).collect()
     }
 
-    fn poly_mul(&self, a: &[i32], b: &[i32]) -> Vec<i32> {
-        // Placeholder for polynomial multiplication
-        // TODO: Implement polynomial multiplication
+    /// Multiply two polynomials (placeholder).
+    fn poly_mul(&self, _a: &[i32], _b: &[i32]) -> Vec<i32> {
         vec![0; self.l]
     }
 
+    /// Check if all coefficients are within the given bound.
     fn check_norm(&self, z: &[i32], bound: i32) -> bool {
         z.iter().all(|&x| x.abs() <= bound)
     }
 
+    /// Serialize signature (placeholder).
     fn serialize_sig(&self, z: &[i32], c: &[i32]) -> Vec<u8> {
-        // Placeholder for signature serialization
-        // TODO: Implement proper serialization
         let mut out = Vec::with_capacity(z.len() * 4 + c.len() * 4);
         for &val in z {
             out.extend_from_slice(&val.to_le_bytes());
@@ -84,5 +76,18 @@ impl Dilithium {
             out.extend_from_slice(&val.to_le_bytes());
         }
         out
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_dilithium_signatures() {
+        let dil = Dilithium::new(2, 2, 4, 2);
+        let msg = b"test";
+        let sk = vec![0u8; 16];
+        let sig = dil.sign(msg, &sk);
+        assert!(!sig.is_empty());
     }
 }

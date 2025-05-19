@@ -1,3 +1,5 @@
+use pq_core::PQSession;
+
 #[test]
 fn test_full_session() {
     let mut alice = PQSession::new();

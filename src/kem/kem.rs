@@ -1,53 +1,65 @@
-pub type PublicKey = Vec<u8>;
-pub type SecretKey = Vec<u8>;
-pub type Ciphertext = Vec<u8>;
-pub type SharedSecret = Vec<u8>;
+use rand::Error as RngError;
+use thiserror::Error;
 
-/// Trait for Key Encapsulation Mechanisms (KEM)
-///
-/// A KEM allows two parties to securely agree on a shared secret over an insecure channel.
-/// This trait defines the required interface for any KEM implementation.
-pub trait Kem {
-    /// Generate a keypair (public key, secret key).
-    fn keygen(&self) -> (PublicKey, SecretKey);
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PublicKey(Box<[u8]>);
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SecretKey(Box<[u8]>);
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Ciphertext(Box<[u8]>);
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SharedSecret(Box<[u8]>);
 
-    /// Encapsulate a shared secret to a public key.
-    ///
-    /// # Arguments
-    /// - `pk`: The recipient's public key.
-    ///
-    /// # Returns
-    /// - `Ciphertext`: The ciphertext to send to the recipient.
-    /// - `SharedSecret`: The shared secret, to be used as a session key.
-    fn encaps(&self, pk: &PublicKey) -> (Ciphertext, SharedSecret);
+impl AsRef<[u8]> for PublicKey {
+    fn as_ref(&self) -> &[u8] { &self.0 }
+}
+impl AsRef<[u8]> for SecretKey {
+    fn as_ref(&self) -> &[u8] { &self.0 }
+}
+impl AsRef<[u8]> for Ciphertext {
+    fn as_ref(&self) -> &[u8] { &self.0 }
+}
+impl AsRef<[u8]> for SharedSecret {
+    fn as_ref(&self) -> &[u8] { &self.0 }
+}
 
-    /// Decapsulate a shared secret from a ciphertext and secret key.
-    ///
-    /// # Arguments
-    /// - `ct`: The ciphertext received from the sender.
-    /// - `sk`: The recipient's secret key.
-    ///
-    /// # Returns
-    /// - `SharedSecret`: The shared secret, matching the sender's encapsulated secret.
-    fn decaps(&self, ct: &Ciphertext, sk: &SecretKey) -> SharedSecret;
+impl PublicKey {
+    pub fn from_vec(v: Vec<u8>) -> Self { Self(v.into_boxed_slice()) }
+    pub fn from_box(b: Box<[u8]>) -> Self { Self(b) }
+}
+impl SecretKey {
+    pub fn from_vec(v: Vec<u8>) -> Self { Self(v.into_boxed_slice()) }
+    pub fn from_box(b: Box<[u8]>) -> Self { Self(b) }
+}
+impl Ciphertext {
+    pub fn from_vec(v: Vec<u8>) -> Self { Self(v.into_boxed_slice()) }
+    pub fn from_box(b: Box<[u8]>) -> Self { Self(b) }
+}
+impl SharedSecret {
+    pub fn from_vec(v: Vec<u8>) -> Self { Self(v.into_boxed_slice()) }
+    pub fn from_box(b: Box<[u8]>) -> Self { Self(b) }
+}
 
-    /// Get the length in bytes of a public key for this KEM.
-    fn public_key_bytes(&self) -> usize {
-        0 // Default: override in implementation
-    }
+#[derive(Debug, Error)]
+pub enum KemError {
+    #[error("Invalid key size provided")]
+    InvalidKeySize,
+    #[error("Invalid ciphertext size")]
+    InvalidCiphertextSize,
+    #[error("Encapsulation operation failed")]
+    EncapsulationError,
+    #[error("Decapsulation operation failed")]
+    DecapsulationError,
+    #[error("Cryptographic RNG failure: {0}")]
+    RandomError(#[from] RngError),
+}
 
-    /// Get the length in bytes of a secret key for this KEM.
-    fn secret_key_bytes(&self) -> usize {
-        0 // Default: override in implementation
-    }
-
-    /// Get the length in bytes of a ciphertext for this KEM.
-    fn ciphertext_bytes(&self) -> usize {
-        0 // Default: override in implementation
-    }
-
-    /// Get the length in bytes of a shared secret for this KEM.
-    fn shared_secret_bytes(&self) -> usize {
-        0 // Default: override in implementation
-    }
+pub trait Kem: Send + Sync {
+    fn keygen(&self) -> Result<(PublicKey, SecretKey), KemError>;
+    fn encaps(&self, pk: &PublicKey) -> Result<(Ciphertext, SharedSecret), KemError>;
+    fn decaps(&self, ct: &Ciphertext, sk: &SecretKey) -> Result<SharedSecret, KemError>;
+    fn public_key_bytes(&self) -> usize;
+    fn secret_key_bytes(&self) -> usize;
+    fn ciphertext_bytes(&self) -> usize;
+    fn shared_secret_bytes(&self) -> usize;
 }

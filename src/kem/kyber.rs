@@ -1,9 +1,10 @@
 use crate::math::ntt::ntt;
 use zeroize::Zeroize;
+use rand::rngs::OsRng;
 use rand::RngCore;
-use super::kem::{Kem, PublicKey, SecretKey, Ciphertext, SharedSecret};
+use super::kem::{Kem, KemError, PublicKey, SecretKey, Ciphertext, SharedSecret};
 
-/// Kyber512 parameters and methods
+#[derive(Debug, Clone)]
 pub struct Kyber512 {
     n: usize,
     q: i32,
@@ -15,7 +16,7 @@ pub struct Kyber512 {
 
 impl Kyber512 {
     pub fn new() -> Self {
-        Kyber512 {
+        Self {
             n: 256,
             q: 3329,
             eta1: 3,
@@ -25,11 +26,10 @@ impl Kyber512 {
         }
     }
 
-    /// Generate a keypair (pk, sk)
-    pub fn keygen(&self) -> (PublicKey, SecretKey) {
+    pub fn keygen(&self) -> Result<(PublicKey, SecretKey), KemError> {
         // 1. Sample random secret s with small coefficients
         let mut s = vec![0i16; self.n];
-        self.sample_binomial(&mut s, self.eta1);
+        self.sample_binomial(&mut s, self.eta1)?;
 
         // 2. NTT transform of s
         let mut s_ntt = s.iter().map(|&x| x as i32).collect::<Vec<_>>();
@@ -37,11 +37,11 @@ impl Kyber512 {
 
         // 3. Generate public matrix A (compressed, placeholder)
         let mut a = vec![0u8; self.n * self.n / 4];
-        rand::thread_rng().fill_bytes(&mut a);
+        OsRng.fill_bytes(&mut a);
 
         // 4. Sample error vector e
         let mut e = vec![0i16; self.n];
-        self.sample_binomial(&mut e, self.eta1);
+        self.sample_binomial(&mut e, self.eta1)?;
 
         // 5. Matrix-vector multiplication in NTT domain (placeholder)
         // In a real implementation, decompress/generate A as a matrix of polynomials,
@@ -61,12 +61,12 @@ impl Kyber512 {
         s_ntt.zeroize();
         e.zeroize();
 
-        (pk, sk)
+        Ok((pk, sk))
     }
 
     /// Sample a vector from a centered binomial distribution
-    fn sample_binomial(&self, v: &mut [i16], eta: i32) {
-        let mut rng = rand::thread_rng();
+    fn sample_binomial(&self, v: &mut [i16], eta: i32) -> Result<(), KemError> {
+        let mut rng = OsRng;
         for x in v.iter_mut() {
             let mut sum = 0;
             for _ in 0..eta {
@@ -76,6 +76,7 @@ impl Kyber512 {
             }
             *x = sum;
         }
+        Ok(())
     }
 
     /// Compress public key (stub)
@@ -85,33 +86,30 @@ impl Kyber512 {
         for &val in t {
             out.extend_from_slice(&val.to_le_bytes());
         }
-        out
+        PublicKey::from_vec(out)
     }
 
     /// Compress secret key (stub)
     fn compress_sk(&self, s_ntt: &[i32], pk: &PublicKey) -> SecretKey {
-        let mut out = Vec::with_capacity(s_ntt.len() * 4 + pk.len());
+        let mut out = Vec::with_capacity(s_ntt.len() * 4 + pk.as_ref().len());
         for &val in s_ntt {
             out.extend_from_slice(&val.to_le_bytes());
         }
-        out.extend_from_slice(pk);
-        out
+        out.extend_from_slice(pk.as_ref());
+        SecretKey::from_vec(out)
     }
 }
 
 impl Kem for Kyber512 {
-    fn keygen(&self) -> (PublicKey, SecretKey) {
+    fn keygen(&self) -> Result<(PublicKey, SecretKey), KemError> {
         self.keygen()
     }
-    fn encaps(&self, _pk: &PublicKey) -> (Ciphertext, SharedSecret) {
-        // TODO: Implement Kyber encapsulation
-        (vec![], vec![])
+    fn encaps(&self, _pk: &PublicKey) -> Result<(Ciphertext, SharedSecret), KemError> {
+        Err(KemError::EncapsulationError)
     }
-    fn decaps(&self, _ct: &Ciphertext, _sk: &SecretKey) -> SharedSecret {
-        // TODO: Implement Kyber decapsulation
-        vec![]
+    fn decaps(&self, _ct: &Ciphertext, _sk: &SecretKey) -> Result<SharedSecret, KemError> {
+        Err(KemError::DecapsulationError)
     }
-
     fn public_key_bytes(&self) -> usize {
         self.pubkey_size
     }

@@ -8,6 +8,9 @@ rand = "0.8"          # Cryptographically secure RNG
 sha3 = "0.10"         # Keccak for hashing
 zeroize = "1.5"       # Secure memory zeroing
 rayon = "1.5"         # Parallel processing
+getrandom ="0.2"
+rand_core = "0.9.3"
+thiserror = "2.0.12"
 
 [dev-dependencies]
 anyhow = "1.0"  # For tests
