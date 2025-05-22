@@ -17,3 +17,11 @@ Experimental - Under active development. Not yet suitable for production use. (o
   - Zeroization of secrets
   - Constant-time operations where critical
 - **Testable/auditable architecture**
+
+## 🚧 Project Archived
+
+This project is currently archived as I do not have the necessary skills or bandwidth to continue its development or maintenance.
+
+If you're interested in forking or reviving it, feel free to do so. Contributions or improvements are always welcome elsewhere.
+
+- Rizzy
