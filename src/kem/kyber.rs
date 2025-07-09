@@ -105,10 +105,37 @@ impl Kem for Kyber512 {
         self.keygen()
     }
     fn encaps(&self, _pk: &PublicKey) -> Result<(Ciphertext, SharedSecret), KemError> {
-        Err(KemError::EncapsulationError)
+        // 1. Generate random message (shared secret seed)
+        let mut m = [0u8; 32];
+        OsRng.fill_bytes(&mut m);
+        // 2. Hash message and public key to derive coins
+        // TODO: Use a real hash function (e.g., SHA3/SHAKE)
+        let mut coins = [0u8; 32];
+        OsRng.fill_bytes(&mut coins); // Placeholder for hash(m || pk)
+        // 3. Encrypt message using public key and coins (Kyber CPA-PKE)
+        // TODO: Implement Kyber CPA-PKE encryption
+        let ct = vec![0u8; self.ciphertext_size]; // Placeholder ciphertext
+        // 4. Derive shared secret from message and ciphertext
+        // TODO: Use a real KDF/hash
+        let mut ss = [0u8; 32];
+        OsRng.fill_bytes(&mut ss); // Placeholder for KDF(m, ct)
+        Ok((Ciphertext::from_vec(ct), SharedSecret::from_vec(ss.to_vec())))
     }
-    fn decaps(&self, _ct: &Ciphertext, _sk: &SecretKey) -> Result<SharedSecret, KemError> {
-        Err(KemError::DecapsulationError)
+     fn decaps(&self, _ct: &Ciphertext, _sk: &SecretKey) -> Result<SharedSecret, KemError> {
+        // 1. Decrypt ciphertext using secret key (Kyber CPA-PKE)
+        // TODO: Implement Kyber CPA-PKE decryption
+        let _m = vec![0u8; 32]; // Placeholder for decrypted message
+        // 2. Hash message and public key to derive coins
+        // TODO: Use a real hash function (e.g., SHA3/SHAKE)
+        let mut coins = [0u8; 32];
+        OsRng.fill_bytes(&mut coins); // Placeholder for hash(m || pk)
+        // 3. Re-encrypt message and compare with input ciphertext
+        // TODO: Implement Kyber CPA-PKE encryption and compare
+        // 4. Derive shared secret from message and ciphertext
+        // TODO: Use a real KDF/hash
+        let mut ss = [0u8; 32];
+        OsRng.fill_bytes(&mut ss); // Placeholder for KDF(m, ct)
+        Ok(SharedSecret::from_vec(ss.to_vec()))
     }
     fn public_key_bytes(&self) -> usize {
         self.pubkey_size
