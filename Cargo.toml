@@ -11,6 +11,11 @@ rayon = "1.5"         # Parallel processing
 getrandom ="0.2"
 rand_core = "0.9.3"
 thiserror = "2.0.12"
+aes-gcm = { version = "0.10.3", features = ["std"] }
+aes = "0.8"
+aes-soft = "0.6"
+aesni = "0.10"
+pqcrypto-kyber = "0.7"
 
 [dev-dependencies]
 anyhow = "1.0"  # For tests

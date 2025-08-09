@@ -6,7 +6,7 @@ fn test_full_session() {
     let mut bob = PQSession::new();
 
     // Alice initiates
-    let handshake = alice.initiate_handshake();
+    let handshake = alice.initiate_handshake().expect("Alice handshake failed");
 
     // Bob processes handshake
     let response = bob.process_handshake(handshake).unwrap();
