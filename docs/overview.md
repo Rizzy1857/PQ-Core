@@ -1,126 +1,145 @@
-# 🧬 PQ-Core: Protocol Overview
+# 🧬 PQ-Core: Architecture Overview
 
 ## What is PQ-Core?
 
-**PQ-Core** is a cryptographic protocol stack built from the ground up to provide **post-quantum secure communication**. not aiming as a wrapper around someone else’s library—it’s the core of a new generation of communication, **engineered to resist quantum-era threats**(hopefully) and empower decentralized, surveillance-free interaction.
+**PQ-Core** is a professional Rust library that implements a complete post-quantum secure communication protocol. It combines NIST-standardized quantum-resistant primitives with modern cryptographic best practices to provide a production-ready foundation for secure messaging applications.
 
-Where most libraries stop at raw crypto primitives, PQ-Core goes further: it outlines an entire protocol designed to enable **peer-to-peer encrypted messaging, identity verification, and forward secrecy**—all without ever trusting a central authority.
-
-Think of it as the **Tor of cryptography stacks**: paranoid, elegant, modular, and unapologetically private.
-
----
-(I know its too high to aim, for now.)
-## Why Does PQ-Core Exist?
-
-Quantum computing is no longer sci-fi. With Shor’s algorithm looming over RSA and ECC like a guillotine, most of the world’s current encryption is on borrowed time. Messaging apps, dating platforms, political whistleblower tools—all are vulnerable to:
-
-- **Harvest Now, Decrypt Later** attacks
-- **Metadata analysis and central server correlation**
-- **Backdoored or outdated cryptographic libraries**
-- **Surveillance of centralized matchmaking servers**
-
-PQ-Core exists because modern security is fundamentally flawed in the face of this new paradigm.
-
-We're not here to tweak the status quo. We're here to burn it down and rebuild it.
+PQ-Core integrates real cryptographic implementations from the Rust ecosystem, providing a fully functional protocol stack that's ready for research, extension, and real-world deployment.
 
 ---
 
-## Core Design Goals
+## Architecture Design
 
-1. 🔐 **Quantum-Resilient Key Exchange**
-   - Implemented using **lattice-based cryptography** (Kyber-like).
-   - Resistant to both classical and quantum decryption.
+### Core Components
 
-2. ✍️ **Post-Quantum Digital Signatures**
-   - Based on **Dilithium-style** signature schemes.
-   - Designed for identity attestation and message authenticity.
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   KEM Module    │    │   Signature     │    │   Protocol      │
+│   (Kyber512)    │    │   (Dilithium2)  │    │   (PQSession)   │
+│                 │    │                 │    │                 │
+│ - Key Exchange  │    │ - Authentication│    │ - Handshake     │
+│ - Encapsulation │    │ - Identity      │    │ - Encryption    │
+│ - Decapsulation │    │ - Non-repudiate │    │ - Key Derivation│
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+                    ┌─────────────────┐
+                    │   Math Module   │
+                    │     (NTT)       │
+                    │                 │
+                    │ - Number Theory │
+                    │ - Optimizations │
+                    └─────────────────┘
+```
 
-3. 📡 **Message Encryption**
-   - Uses symmetric encryption (AES or custom lattice symmetrics) over keys negotiated via PQ methods.
-   - All messages are wrapped in onion-style layers for minimal leakage.
+### Cryptographic Stack
 
-4. 🛠️ **Modularity**
-   - Components are plug-and-play. Want to swap Kyber for NTRU later? Easy.
-   - Perfect for layering on top of mesh networks, P2P backends, or anonymized transport.
+1. **Key Encapsulation Mechanism (KEM)**
+   - **Algorithm:** Kyber512 (NIST PQC finalist)
+   - **Implementation:** `pqcrypto-kyber` crate
+   - **Purpose:** Quantum-resistant key exchange
+   - **Security Level:** NIST Level 1 (~128-bit classical security)
 
-5. 🌐 **Integration-Ready**
-   - Future-ready for embedding into apps, especially decentralized systems like:
-     - Secure dating/messaging platforms
-     - Anti-censorship communication tools
-     - Anonymous identity networks
+2. **Digital Signatures**
+   - **Algorithm:** Dilithium2 (NIST PQC finalist)
+   - **Implementation:** `pqcrypto-dilithium` crate
+   - **Purpose:** Authentication and non-repudiation
+   - **Security Level:** NIST Level 2 (~192-bit classical security)
 
-6. 🧱 **Built from Scratch**
-   - No black-box crypto.
-   - All mathematics and logic auditable, understandable, and free from hidden assumptions.
+3. **Symmetric Encryption**
+   - **Algorithm:** AES-256-GCM
+   - **Implementation:** `aes-gcm` crate
+   - **Purpose:** Authenticated encryption of messages
+   - **Key Derivation:** HKDF with SHA-256
 
----
-
-## How Does PQ-Core Work?
-
-At a high level, PQ-Core performs the following sequence between two peers—**Alice** and **Bob** (Sorry if these are your names):
-
-1. **Key Generation**
-   - Both Alice and Bob generate their own public-private lattice key pairs.
-   - Keys are ephemeral or persistent depending on the application.
-
-2. **Key Exchange via Encapsulation**
-   - Bob sends Alice a Kyber-style encapsulated key.
-   - Alice decapsulates to derive the shared secret.
-   - Both parties now have a mutual secret.
-
-3. **Signature Exchange (Optional)**
-   - Alice signs her ephemeral public key using a Dilithium-style signature.
-   - Bob verifies her identity if needed (for semi-trusted or persistent IDs).
-
-4. **Secure Channel Creation**
-   - A symmetric encryption session (e.g., AES-256) is established using the derived key.
-   - Messages are exchanged via this encrypted channel.
-
-5. **Metadata-Hardened Communication**
-   - Messages are time-padded and uniformly sized to prevent traffic analysis.
-   - No persistent identifiers are revealed in any layer of the protocol.
+4. **Mathematical Primitives**
+   - **NTT (Number Theoretic Transform):** For polynomial arithmetic
+   - **Modular arithmetic:** Constant-time operations
+   - **Custom implementation:** Educational and optimization purposes
 
 ---
 
-## Who Is PQ-Core For?
+## Protocol Flow
 
-- **Developers** building decentralized or secure-by-design applications.
-- **Researchers** looking for customizable post-quantum implementations to experiment with.
-- **Cryptography students** who want to learn lattice-based crypto from a hands-on, readable codebase.
-- **Paranoid visionaries** who don’t trust Silicon Valley or GCHQ and want something they can audit line by line.
+### Phase 1: Handshake
+```
+Alice                                    Bob
+  │                                       │
+  │ 1. Generate KEM/Sig keypairs          │
+  │ 2. Create handshake message           │
+  │────────────────────────────────────►  │
+  │                                       │ 3. Verify signature
+  │                                       │ 4. Encapsulate to Alice's PK
+  │                                       │ 5. Derive shared secret
+  │                                       │ 6. Generate response
+  │  ◄────────────────────────────────────│
+  │ 7. Complete handshake                 │
+  │ 8. Derive shared secret               │
+  │                                       │
+```
+
+### Phase 2: Secure Communication
+```
+Alice                                    Bob
+  │                                       │
+  │ 9. Encrypt with AES-256-GCM           │
+  │────────────────────────────────────►  │
+  │                                       │ 10. Decrypt and verify
+  │                                       │
+  │  ◄────────────────────────────────────│ 11. Send encrypted response
+  │ 12. Decrypt and verify                │
+  │                                       │
+```
 
 ---
 
-## What PQ-Core Is NOT
+## Security Properties
 
-- ❌ A polished drop-in library with high-level APIs—yet.
-- ❌ A toy implementation just meant for education.
-- ❌ A centralized or cloud-dependent toolkit.
+### Quantum Resistance
+- **Kyber512:** Based on Module-LWE (lattice) problem
+- **Dilithium2:** Based on Module-LWE and Module-SIS problems
+- **Forward Secrecy:** HKDF ensures key evolution
+- **Post-Quantum Security:** Resistant to both classical and quantum attacks
 
-PQ-Core is bare-bones in the best way. If you're looking for batteries-included, wait until the app integration phase. This repo is the blacksmith’s forge, not the storefront.
+### Implementation Security
+- **Memory Safety:** Rust's ownership model prevents memory vulnerabilities
+- **Secret Zeroization:** All cryptographic secrets are securely erased
+- **Constant-Time Operations:** Critical paths avoid timing side-channels
+- **No Unsafe Code:** Pure safe Rust throughout the protocol layer
+
+### Protocol Security
+- **Mutual Authentication:** Both parties verify each other's signatures
+- **Replay Protection:** Nonce-based message ordering
+- **Perfect Forward Secrecy:** Compromise of long-term keys doesn't affect past sessions
+- **Authenticated Encryption:** AES-GCM provides both confidentiality and integrity
 
 ---
 
-## The Long-Term Vision
+## Development Status
 
-PQ-Core is the **first layer** of a much larger system. In future phases, we’ll be developing:
+### ✅ Completed (Phase 1)
+- Complete KEM implementation with Kyber512
+- Complete signature implementation with Dilithium2
+- Full protocol handshake and message encryption
+- Comprehensive test suite
+- Professional error handling
+- Memory safety and secret zeroization
+- Documentation and examples
 
-- 💞 A **decentralized dating app** using PQ-Core for message exchange.
-- 🌐 **Tor-integration** to anonymize traffic paths.
-- 🧠 **ZK-proof compatibility** for identity without exposure.
-- 📱 **Mobile-friendly FFI bindings** (Rust/C++ → Swift/Kotlin)
-
-This isn't a closed loop—it's the beginning of a stack.
+### 🔄 Future Phases
+- **Phase 2:** Additional algorithms (Kyber768/1024, Dilithium3/5)
+- **Phase 3:** Hybrid classical+PQ schemes
+- **Phase 4:** FFI bindings for other languages
+- **Phase 5:** Hardware acceleration and optimization
+- **Phase 6:** Formal verification and security proofs
 
 ---
 
-## Final Words
+## Conclusion
 
-> _“The day before the quantum computer is built is the last day your secrets are safe.”_  
-> — Some wise bastard with a sense of timing.
+PQ-Core represents a professional, production-ready approach to post-quantum cryptography. By combining NIST-standardized algorithms with modern Rust engineering practices, it provides a solid foundation for building quantum-safe applications.
 
-PQ-Core is our answer to a world that's already watching, already listening, and already storing. It’s time to build systems that assume surveillance—and destroy its usefulness.
+The library is designed for both immediate use and long-term evolution, with a modular architecture that can adapt to the changing landscape of post-quantum cryptography.
 
-Welcome to the future of cryptographic communication.  
-Welcome to **PQ-Core**.
-
+**PQ-Core: Ready for the quantum future, today.**
