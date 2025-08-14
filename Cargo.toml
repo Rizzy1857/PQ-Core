@@ -5,17 +5,18 @@ edition = "2024"
 
 [dependencies]
 rand = "0.8"          # Cryptographically secure RNG
+sha2 = "0.10"         # SHA-256 for HKDF
 sha3 = "0.10"         # Keccak for hashing
 zeroize = "1.5"       # Secure memory zeroing
 rayon = "1.5"         # Parallel processing
-getrandom ="0.2"
+getrandom = "0.2"     # Secure random number generation
+pqcrypto-kyber = "0.7"  # Real Kyber KEM implementation
+pqcrypto-dilithium = "0.5"  # Real Dilithium signatures
+pqcrypto-traits = "0.3.5"  # Traits for pqcrypto
+aes-gcm = { version = "0.10.3", features = ["std"] }  # AES-256-GCM for symmetric encryption
+hkdf = "0.12"         # Key derivation function
 rand_core = "0.9.3"
 thiserror = "2.0.12"
-aes-gcm = { version = "0.10.3", features = ["std"] }
-aes = "0.8"
-aes-soft = "0.6"
-aesni = "0.10"
-pqcrypto-kyber = "0.7"
 
 [dev-dependencies]
 anyhow = "1.0"  # For tests
