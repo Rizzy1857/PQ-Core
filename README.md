@@ -1,35 +1,33 @@
 
-# PQ-Core 🔒 [![Rust](https://img.shields.io/badge/Rust-1.70+-blue.svg)](https://www.rust-lang.org/)
-
-**Quantum-Safe Secure Communication Protocols in Pure Rust**
+# PQ-Core [![Rust](https://img.shields.io/badge/Rust-1.70+-blue.svg)](https://www.rust-lang.org/)
 
 ---
 
-## 🚀 Overview
+## Overview
 
-PQ-Core is a professional, production-grade Rust library for post-quantum secure communication. It implements a full protocol stack using NIST-standardized quantum-resistant primitives:
+PQ-Core is a Rust library for post-quantum secure communication. It implements a protocol stack using NIST-standardized quantum-resistant primitives:
 
 - **Kyber512** (KEM) for key exchange
 - **Dilithium2** for digital signatures
 - **AES-256-GCM** for authenticated symmetric encryption
 - **HKDF (SHA-256)** for key derivation
 
-All cryptographic operations use real, production-ready Rust crates. Secrets are zeroized, and the architecture is modular, auditable, and extensible.
+All cryptographic operations use audited Rust crates. Secrets are zeroized, and the architecture is modular and extensible.
 
 ---
 
-## ✨ Features
+## Features
 
-- **Post-Quantum Security:** Kyber and Dilithium (NIST PQC finalists)
+- **Post-Quantum Security:** Kyber and Dilithium (NIST PQC algorithms)
 - **Authenticated Encryption:** AES-256-GCM with HKDF
 - **Memory Safety:** Zeroization and constant-time operations
 - **Modular Design:** Easy to extend and audit
-- **Comprehensive Testing:** Unit and integration tests
+- **Testing:** Unit and integration tests
 - **Demo Example:** See `examples/demo.rs` for a full protocol run
 
 ---
 
-## 📦 Usage
+## Usage
 
 Add to your `Cargo.toml`:
 
@@ -38,7 +36,7 @@ Add to your `Cargo.toml`:
 pq-core = { path = "./PQ-Core" }
 ```
 
-### Example: End-to-End Quantum-Safe Communication
+### Example: End-to-end quantum-safe communication
 
 ```rust
 use pq_core::PQSession;
@@ -62,7 +60,7 @@ fn main() {
 
 ---
 
-## � Security
+## Security
 
 - **Key Exchange:** Kyber512 (quantum-resistant)
 - **Authentication:** Dilithium2 (quantum-resistant)
@@ -72,23 +70,23 @@ fn main() {
 
 ---
 
-## 🧪 Testing & Demo
+## Testing and demo
 
 Run all tests:
 
-```sh
+```powershell
 cargo test
 ```
 
 Run the demo:
 
-```sh
+```powershell
 cargo run --example demo
 ```
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 - See `docs/overview.md` for architecture and protocol details
 - See `docs/pq_concepts.md` for post-quantum background
@@ -97,17 +95,16 @@ cargo run --example demo
 
 ---
 
-## 🏆 Status
+## Status
 
-- **Phase 1: Complete** — Real cryptography, full protocol, all tests passing
-- **Ready for research, extension, and real-world quantum-safe applications**
+- Phase 1 complete: real cryptography, protocol implemented, tests passing.
 
 ---
 
-## 👤 Authors & Credits
+## Authors
 
-- Original author: Rizzy
-- Professional refactoring, cryptographic integration, and review: [GitHub Copilot]
+- Maintainer: Rizzy
+- Contributors: see Git history
 
 ---
 

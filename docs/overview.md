@@ -1,10 +1,10 @@
-# 🧬 PQ-Core: Architecture Overview
+# PQ-Core: Architecture Overview
 
 ## What is PQ-Core?
 
-**PQ-Core** is a professional Rust library that implements a complete post-quantum secure communication protocol. It combines NIST-standardized quantum-resistant primitives with modern cryptographic best practices to provide a production-ready foundation for secure messaging applications.
+PQ-Core is a Rust library that implements a post-quantum secure communication protocol. It combines NIST-standardized quantum-resistant primitives with established cryptographic practices to provide a solid foundation for secure messaging applications.
 
-PQ-Core integrates real cryptographic implementations from the Rust ecosystem, providing a fully functional protocol stack that's ready for research, extension, and real-world deployment.
+PQ-Core integrates maintained cryptographic implementations from the Rust ecosystem and provides a functional protocol stack suitable for research, extension, and deployment.
 
 ---
 
@@ -118,16 +118,18 @@ Alice                                    Bob
 
 ## Development Status
 
-### ✅ Completed (Phase 1)
+### Completed (Phase 1)
+
 - Complete KEM implementation with Kyber512
 - Complete signature implementation with Dilithium2
 - Full protocol handshake and message encryption
 - Comprehensive test suite
-- Professional error handling
+- Explicit error types
 - Memory safety and secret zeroization
 - Documentation and examples
 
-### 🔄 Future Phases
+### Future phases
+
 - **Phase 2:** Additional algorithms (Kyber768/1024, Dilithium3/5)
 - **Phase 3:** Hybrid classical+PQ schemes
 - **Phase 4:** FFI bindings for other languages
@@ -136,10 +138,6 @@ Alice                                    Bob
 
 ---
 
-## Conclusion
-
-PQ-Core represents a professional, production-ready approach to post-quantum cryptography. By combining NIST-standardized algorithms with modern Rust engineering practices, it provides a solid foundation for building quantum-safe applications.
+## Notes
 
 The library is designed for both immediate use and long-term evolution, with a modular architecture that can adapt to the changing landscape of post-quantum cryptography.
-
-**PQ-Core: Ready for the quantum future, today.**

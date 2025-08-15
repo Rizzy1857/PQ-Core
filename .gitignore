@@ -2,12 +2,18 @@
 /target/
 **/*.rs.bk
 Cargo.lock
+target/doc/
 
 # VS Code
 .vscode/*
 !.vscode/tasks.json
 !.vscode/launch.json
+*.code-workspace
+.idea/
 
 # System
 .DS_Store
 Thumbs.db
+
+# Misc
+rustup-init.exe
