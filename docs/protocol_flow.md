@@ -3,8 +3,8 @@
 ## Phase 1: Unidirectional Handshake (Complete ✅)
 
 ### Overview
-Phase 1 establishes a quantum-safe symmetric channel using Kyber512 key encapsulation and Dilithium2 signatures.
-
+Phase 1 establishes a quantum-safe symmetric channel using Kyber512 key encapsulation and 
+Dilithium2 signatures.                                                                    
 ### Flow
 
 ```
@@ -19,9 +19,9 @@ Alice                              Bob
   |<-- Established with SS_AB ---->|
 ```
 
-1. **Alice initiates**: Generates ephemeral KEM keypair, signs PK with Dilithium, sends to Bob
-2. **Bob processes**: Verifies signature, encapsulates to Alice's KEM_pk, derives shared secret SS
-3. **Alice completes**: Decapsulates Bob's ciphertext, derives matching SS
+1. **Alice initiates**: Generates ephemeral KEM keypair, signs PK with Dilithium, sends to
+ Bob                                                                                      2. **Bob processes**: Verifies signature, encapsulates to Alice's KEM_pk, derives shared s
+ecret SS                                                                                  3. **Alice completes**: Decapsulates Bob's ciphertext, derives matching SS
 4. **Both derive**: Use HKDF(SS) → tx_chain_key, rx_chain_key
 5. **Encrypt/Decrypt**: Use AES-256-GCM with nonce = message counter
 
@@ -31,9 +31,9 @@ Alice                              Bob
 
 ### Key Innovations
 
-1. **Concurrent Sends**: Both Alice and Bob can send messages simultaneously without blocking
-2. **Atomic Delivery**: Messages are guaranteed to be delivered atomically (all-or-nothing)
-3. **Strict Ordering**: Message sequence numbers prevent reordering attacks
+1. **Concurrent Sends**: Both Alice and Bob can send messages simultaneously without block
+ing                                                                                       2. **Atomic Delivery**: Messages are guaranteed to be delivered atomically (all-or-nothing
+)                                                                                         3. **Strict Ordering**: Message sequence numbers prevent reordering attacks
 4. **No Lost Messages**: Transaction-based delivery with acknowledgments
 5. **Forward Secrecy**: Each message encrypted with derived sub-key from chain key
 6. **Replay Protection**: Sequence numbers + timestamps prevent replay attacks
@@ -46,22 +46,22 @@ Alice                              Bob
 
 ```rust
 MessageEnvelope {
-    sequence_number: u64,          // Monotonic per sender
-    timestamp: u64,                // Unix timestamp (ms)
-    sender_id: [u8; 32],          // Hash of sender's public key
-    transaction_id: u128,         // UUID for atomic grouping
-    message_type: MessageType,    // DATA, ACK, SYNC, ABORT
-    payload: Vec<u8>,             // Encrypted message body
-    nonce: [u8; 12],              // AES-GCM nonce
-    tag: [u8; 16],                // AES-GCM authentication tag
-    signature: DilithiumSignature, // Sign (sequence + timestamp + payload)
+	sequence_number: u64,          // Monotonic per sender
+	timestamp: u64,                // Unix timestamp (ms)
+	sender_id: [u8; 32],          // Hash of sender's public key
+	transaction_id: u128,         // UUID for atomic grouping
+	message_type: MessageType,    // DATA, ACK, SYNC, ABORT
+	payload: Vec<u8>,             // Encrypted message body
+	nonce: [u8; 12],              // AES-GCM nonce
+	tag: [u8; 16],                // AES-GCM authentication tag
+	signature: DilithiumSignature, // Sign (sequence + timestamp + payload)
 }
 
 enum MessageType {
-    Data,      // Regular data message
-    Ack,       // Acknowledgment of received message
-    Sync,      // Synchronization probe
-    Abort,     // Transaction abort signal
+	Data,      // Regular data message
+	Ack,       // Acknowledgment of received message
+	Sync,      // Synchronization probe
+	Abort,     // Transaction abort signal
 }
 ```
 
@@ -103,23 +103,23 @@ enum MessageType {
 │  tx_chain_key, rx_chain_key derived     │
 │  Both parties ready to exchange data    │
 └──────────┬────────────────────────────┬─┘
-           │                            │
-           ▼                            ▼
-    Send MessageEnvelope        Receive MessageEnvelope
-           │                            │
-           ├─ Increment seq_number      ├─ Validate signature
-           ├─ Advance chain key         ├─ Check sequence gap
-           ├─ Encrypt payload           ├─ Buffer in transaction
-           ├─ Sign + Send               └─ Send ACK
-           │
-           └─ Wait for ACK (timeout = 5s)
-                    │
-         ┌──────────┴──────────┐
-         ▼                     ▼
-      Ack'd                Timeout
-        │                     │
-        └─ Commit            └─ Retransmit (exp backoff)
-           message
+		   │                            │
+		   ▼                            ▼
+	Send MessageEnvelope        Receive MessageEnvelope
+		   │                            │
+		   ├─ Increment seq_number      ├─ Validate signature
+		   ├─ Advance chain key         ├─ Check sequence gap
+		   ├─ Encrypt payload           ├─ Buffer in transaction
+		   ├─ Sign + Send               └─ Send ACK
+		   │
+		   └─ Wait for ACK (timeout = 5s)
+					│
+		 ┌──────────┴──────────┐
+		 ▼                     ▼
+	  Ack'd                Timeout
+		│                     │
+		└─ Commit            └─ Retransmit (exp backoff)
+		   message
 ```
 
 ### Receiver State (per sender)
@@ -131,14 +131,14 @@ enum MessageType {
 │  Pending Transactions:                       │
 │  {txn_id → [msg1, msg2, ...]}               │
 └──────────────────────────────────────────────┘
-           │
-           ├─ On message: Add to pending txn
-           ├─ On txn complete (all msgs received):
-           │    → Deliver to app
-           │    → Remove from pending
-           └─ On txn abort:
-                → Discard all msgs in txn
-                → Notify app (optional rollback)
+		   │
+		   ├─ On message: Add to pending txn
+		   ├─ On txn complete (all msgs received):
+		   │    → Deliver to app
+		   │    → Remove from pending
+		   └─ On txn abort:
+				→ Discard all msgs in txn
+				→ Notify app (optional rollback)
 ```
 
 ---
@@ -150,19 +150,19 @@ enum MessageType {
 ```
 Time  Alice                           Bob
  t0   ├─ Gen msg_A1 (seq=1)          ├─ Gen msg_B1 (seq=1)
-      ├─ Encrypt + sign              ├─ Encrypt + sign
-      └─ Send ──────────────────────→└─ Send ──────────────────────→
+	  ├─ Encrypt + sign              ├─ Encrypt + sign
+	  └─ Send ──────────────────────→└─ Send ──────────────────────→
  t1        (in flight)                       (in flight)
  t2   ←──────────────────── msg_B1 ──┘       ←──────────────────── msg_A1 ──┘
  t3   ├─ Validate msg_B1             ├─ Validate msg_A1
-      ├─ Deliver to app              ├─ Deliver to app
-      └─ Send ACK_B1 (seq=1, ok) ────→ Send ACK_A1 (seq=1, ok) ────→
+	  ├─ Deliver to app              ├─ Deliver to app
+	  └─ Send ACK_B1 (seq=1, ok) ────→ Send ACK_A1 (seq=1, ok) ────→
  t4        (ACK in flight)                    (ACK in flight)
  t5   ←─────────── ACK_A1 received ──┘       ←─────────── ACK_B1 received ──┘
  t6   ├─ Commit msg_A1               ├─ Commit msg_B1
-      ├─ Gen msg_A2 (seq=2)          ├─ Gen msg_B2 (seq=2)
-      └─ Send ───────────────────────→└─ Send ───────────────────────→
-      ...
+	  ├─ Gen msg_A2 (seq=2)          ├─ Gen msg_B2 (seq=2)
+	  └─ Send ───────────────────────→└─ Send ───────────────────────→
+	  ...
 ```
 
 **Key Properties**:
@@ -183,23 +183,23 @@ When sending message with seq=N:
 
 ```
 current_tx_chain_key: [u8; 32]
-    │
-    ├─ KDF(current_tx_chain_key, "send_" || seq) → encryption_key
-    ├─ KDF(current_tx_chain_key, "send_" || seq) → new_chain_key
-    │
-    └─ current_tx_chain_key = new_chain_key  (advance for next message)
+	│
+	├─ KDF(current_tx_chain_key, "send_" || seq) → encryption_key
+	├─ KDF(current_tx_chain_key, "send_" || seq) → new_chain_key
+	│
+	└─ current_tx_chain_key = new_chain_key  (advance for next message)
 ```
 
 When receiving message with seq=N:
 
 ```
 current_rx_chain_key: [u8; 32]
-    │
-    ├─ KDF(current_rx_chain_key, "recv_" || seq) → decryption_key
-    ├─ Advance counter: last_seen_seq = N
-    │
-    └─ If gap (last_seen + 1 ≠ N):
-        └─ Request retransmit of missing seqs
+	│
+	├─ KDF(current_rx_chain_key, "recv_" || seq) → decryption_key
+	├─ Advance counter: last_seen_seq = N
+	│
+	└─ If gap (last_seen + 1 ≠ N):
+		└─ Request retransmit of missing seqs
 ```
 
 **Benefits**:
@@ -214,10 +214,10 @@ current_rx_chain_key: [u8; 32]
 transaction_id = UUID::new_v4();  // Unique per atomic operation
 messages = [msg1, msg2, msg3];
 for msg in messages {
-    envelope = build_envelope(msg);
-    envelope.transaction_id = transaction_id;
-    envelope.sequence_number = ++seq_counter;
-    send_encrypted(envelope);
+	envelope = build_envelope(msg);
+	envelope.transaction_id = transaction_id;
+	envelope.sequence_number = ++seq_counter;
+	send_encrypted(envelope);
 }
 // Wait for ACKs covering all seq_numbers
 wait_for_ack_up_to(seq_counter);
@@ -228,18 +228,18 @@ wait_for_ack_up_to(seq_counter);
 ```rust
 pending_txns: Map<u128, Vec<MessageEnvelope>> = {};
 on_receive(envelope) {
-    validate_signature(envelope);
-    if envelope.sequence_number <= last_seen_seq {
-        return;  // Duplicate
-    }
-    pending_txns[envelope.transaction_id].push(envelope);
+	validate_signature(envelope);
+	if envelope.sequence_number <= last_seen_seq {
+		return;  // Duplicate
+	}
+	pending_txns[envelope.transaction_id].push(envelope);
     
-    if is_transaction_complete(envelope.transaction_id) {
-        deliver_to_app(pending_txns[envelope.transaction_id]);
-        pending_txns.remove(envelope.transaction_id);
-    }
+	if is_transaction_complete(envelope.transaction_id) {
+		deliver_to_app(pending_txns[envelope.transaction_id]);
+		pending_txns.remove(envelope.transaction_id);
+	}
     
-    send_ack(envelope.sequence_number, missing_seqs);
+	send_ack(envelope.sequence_number, missing_seqs);
 }
 ```
 
@@ -247,20 +247,20 @@ on_receive(envelope) {
 
 ```rust
 pub struct BidirectionalSession {
-    state: Arc<RwLock<SessionState>>,
+	state: Arc<RwLock<SessionState>>,
     
-    // Sender side (can be accessed concurrently)
-    tx_chain_key: Arc<Mutex<[u8; 32]>>,
-    seq_counter: Arc<AtomicU64>,
+	// Sender side (can be accessed concurrently)
+	tx_chain_key: Arc<Mutex<[u8; 32]>>,
+	seq_counter: Arc<AtomicU64>,
     
-    // Receiver side
-    rx_chain_key: Arc<Mutex<[u8; 32]>>,
-    recv_buffer: Arc<Mutex<ReceiverBuffer>>,
-    pending_txns: Arc<DashMap<u128, Vec<MessageEnvelope>>>,
+	// Receiver side
+	rx_chain_key: Arc<Mutex<[u8; 32]>>,
+	recv_buffer: Arc<Mutex<ReceiverBuffer>>,
+	pending_txns: Arc<DashMap<u128, Vec<MessageEnvelope>>>,
     
-    // Communication channels
-    tx_socket: mpsc::Sender<Vec<u8>>,
-    rx_socket: mpsc::Receiver<Vec<u8>>,
+	// Communication channels
+	tx_socket: mpsc::Sender<Vec<u8>>,
+	rx_socket: mpsc::Receiver<Vec<u8>>,
 }
 ```
 
@@ -278,10 +278,11 @@ pub struct BidirectionalSession {
 | **Confidentiality** | AES-256-GCM per message | Symmetric, derived from PQ key |
 | **Authenticity** | Dilithium signature on {seq, ts, payload} | Prevents tampering |
 | **Integrity** | GCM authentication tag | Detects bit flips |
-| **Forward Secrecy** | Per-message chain key ratcheting | Compromised key ≠ past messages |
-| **Replay Protection** | Sequence numbers + timestamps | Detects duplicate/reordered |
+| **Forward Secrecy** | Per-message chain key ratcheting | Compromised key ≠ past messages
+ |                                                                                        | **Replay Protection** | Sequence numbers + timestamps | Detects duplicate/reordered |
 | **Atomicity** | Transaction IDs + ACK mechanism | All-or-nothing delivery |
-| **Quantum Resistance** | Kyber512 + Dilithium2 (NIST std) | Safe against quantum computers |
+| **Quantum Resistance** | Kyber512 + Dilithium2 (NIST std) | Safe against quantum compute
+rs |                                                                                      
 
 ---
 
@@ -303,4 +304,3 @@ pub struct BidirectionalSession {
 - **Fragmentation**: Split large messages into fragments
 - **Persistence**: Transaction log for recovery from crashes
 - **Clustering**: Multi-node consensus on message ordering
-
