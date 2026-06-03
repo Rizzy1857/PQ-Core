@@ -5,5 +5,7 @@ pub mod kem;
 pub mod math;
 pub mod sig;
 pub mod protocol;
+pub mod bidirectional;
 
 pub use protocol::PQSession;
+pub use bidirectional::{BidirectionalSession, MessageEnvelope, MessageType};

@@ -17,6 +17,8 @@ aes-gcm = { version = "0.10.3", features = ["std"] }  # AES-256-GCM for symmetri
 hkdf = "0.12"         # Key derivation function
 rand_core = "0.9.3"
 thiserror = "2.0.12"
+uuid = { version = "1.6", features = ["v4", "serde"] }  # Transaction IDs
+serde = { version = "1.0", features = ["derive"] }  # Serialization
 
 [dev-dependencies]
 anyhow = "1.0"  # For tests
